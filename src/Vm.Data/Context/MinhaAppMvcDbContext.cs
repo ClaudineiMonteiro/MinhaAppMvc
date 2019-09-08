@@ -9,7 +9,7 @@ namespace Vm.Data.Context
 		public MinhaAppMvcDbContext(DbContextOptions options) : base(options) {}
 
 		public DbSet<Product> Products { get; set; }
-		public DbSet<Address> Adresses { get; set; }
+		public DbSet<Address> Addresses { get; set; }
 		public DbSet<Provider> Providers { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

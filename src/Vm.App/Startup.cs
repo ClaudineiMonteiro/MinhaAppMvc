@@ -14,6 +14,8 @@ using Vm.App.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Vm.Data.Context;
+using Vm.Business.Interfaces;
+using Vm.Data.Repository;
 
 namespace Vm.App
 {
@@ -47,6 +49,11 @@ namespace Vm.App
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+			services.AddScoped<MinhaAppMvcDbContext>();
+			services.AddScoped<IProductRepository, ProductRepository>();
+			services.AddScoped<IProviderRepository, ProviderRepository>();
+			services.AddScoped<IAddressRepository, AddressRepository>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
