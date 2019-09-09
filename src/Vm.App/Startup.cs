@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Vm.Data.Context;
 using Vm.Business.Interfaces;
 using Vm.Data.Repository;
+using AutoMapper;
 
 namespace Vm.App
 {
@@ -47,6 +48,8 @@ namespace Vm.App
 			services.AddDefaultIdentity<IdentityUser>()
 				.AddDefaultUI(UIFramework.Bootstrap4)
 				.AddEntityFrameworkStores<ApplicationDbContext>();
+
+			services.AddAutoMapper(typeof(Startup));
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
