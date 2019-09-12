@@ -107,7 +107,7 @@ namespace Vm.App.Controllers
 
 		private async Task<ProductViewModel> FillProviders(ProductViewModel product)
 		{
-			product.Provider = _mapper.Map<ProviderViewModel>(await _providerRepository.GetAll());
+			product.Providers = _mapper.Map<IEnumerable<ProviderViewModel>>(await _providerRepository.GetAll());
 			return product;
 		}
 	}
