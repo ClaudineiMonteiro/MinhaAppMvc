@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Vm.App.ViewModels;
 using Vm.Business.Interfaces;
@@ -48,6 +50,14 @@ namespace Vm.App.Controllers
 		{
 			productViewModel = await FillProviders(productViewModel);
 			if (!ModelState.IsValid) return View(productViewModel);
+
+			var imgPrefix = $"{Guid.NewGuid()}_";
+			if (! await UploadFile(productViewModel.ImageUpload, imgPrefix))
+			{
+				return View(productViewModel);
+			}
+
+			productViewModel.Image = $"{imgPrefix}{productViewModel.ImageUpload.FileName}";
 
 			await _productRepository.Add(_mapper.Map<Product>(productViewModel));
 
@@ -109,6 +119,25 @@ namespace Vm.App.Controllers
 		{
 			product.Providers = _mapper.Map<IEnumerable<ProviderViewModel>>(await _providerRepository.GetAll());
 			return product;
+		}
+
+		private async Task<bool> UploadFile(IFormFile imageUpload, string imgPrefix)
+		{
+			if (imageUpload.Length <= 0) return false;
+
+			var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images", $"{imgPrefix}{imageUpload.FileName}");
+
+			if (System.IO.File.Exists(path))
+			{
+				ModelState.AddModelError(string.Empty, "Já existe um arquivo com este nome!");
+				return false;
+			}
+
+			using (var stream = new FileStream(path, FileMode.Create))
+			{
+				await imageUpload.CopyToAsync(stream);
+			}
+			return true;
 		}
 	}
 }
