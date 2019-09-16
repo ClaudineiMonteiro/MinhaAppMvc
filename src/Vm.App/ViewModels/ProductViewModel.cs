@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Vm.App.Extensions;
 
 namespace Vm.App.ViewModels
 {
@@ -29,6 +30,7 @@ namespace Vm.App.ViewModels
 		public IFormFile ImageUpload { get; set; }
 		public string Image { get; set; }
 
+		[CurrencyAttribute]
 		[DisplayName("Valor")]
 		[Required(ErrorMessage = "O Campo {0} é Obrigatório")]
 		public decimal Value { get; set; }

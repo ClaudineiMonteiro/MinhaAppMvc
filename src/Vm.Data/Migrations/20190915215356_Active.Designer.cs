@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vm.Data.Context;
 
 namespace Vm.Data.Migrations
 {
     [DbContext(typeof(MinhaAppMvcDbContext))]
-    partial class MinhaAppMvcDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190915215356_Active")]
+    partial class Active
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

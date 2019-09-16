@@ -80,9 +80,28 @@ namespace Vm.App.Controllers
 		{
 			if (id != productViewModel.Id) return NotFound();
 
+			var productUpdated = await GetProductById(id);
+			productViewModel.Provider = productUpdated.Provider;
+			productViewModel.Image = productUpdated.Image;
 			if (!ModelState.IsValid) return View(productViewModel);
 
-			await _productRepository.Update(_mapper.Map<Product>(productViewModel));
+			if (productViewModel.ImageUpload != null)
+			{
+				var imgPrefix = $"{Guid.NewGuid()}_";
+				if (!await UploadFile(productViewModel.ImageUpload, imgPrefix))
+				{
+					return View(productViewModel);
+
+					productUpdated.Image = $"{imgPrefix}{productViewModel.ImageUpload.FileName}";
+				} 
+			}
+
+			productUpdated.Name = productViewModel.Name;
+			productUpdated.Decription = productViewModel.Decription;
+			productUpdated.Value = productViewModel.Value;
+			productUpdated.Active = productViewModel.Active;
+
+			await _productRepository.Update(_mapper.Map<Product>(productUpdated));
 
 			return RedirectToAction(nameof(Index));
 		}
@@ -111,7 +130,7 @@ namespace Vm.App.Controllers
 		private async Task<ProductViewModel> GetProductById(Guid id)
 		{
 			var product = _mapper.Map<ProductViewModel>(await _productRepository.GetProductProviderById(id));
-			product.Provider = _mapper.Map<ProviderViewModel>(await _providerRepository.GetAll());
+			product.Providers = _mapper.Map< IEnumerable<ProviderViewModel>>(await _providerRepository.GetAll());
 			return product;
 		}
 
