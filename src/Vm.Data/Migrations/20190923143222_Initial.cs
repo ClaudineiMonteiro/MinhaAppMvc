@@ -12,6 +12,9 @@ namespace Vm.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
+                    RegistrationDate = table.Column<DateTime>(nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(nullable: true),
+                    Active = table.Column<bool>(nullable: false),
                     Name = table.Column<string>(type: "varchar(200)", nullable: false),
                     Document = table.Column<string>(type: "varchar(14)", nullable: false),
                     SupplierType = table.Column<int>(nullable: false)
@@ -26,6 +29,9 @@ namespace Vm.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
+                    RegistrationDate = table.Column<DateTime>(nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(nullable: true),
+                    Active = table.Column<bool>(nullable: false),
                     ProviderId = table.Column<Guid>(nullable: false),
                     PublicPlace = table.Column<string>(type: "varchar(200)", nullable: false),
                     Number = table.Column<string>(type: "varchar(10)", nullable: false),
@@ -51,6 +57,9 @@ namespace Vm.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
+                    RegistrationDate = table.Column<DateTime>(nullable: false),
+                    LastUpdatedDate = table.Column<DateTime>(nullable: true),
+                    Active = table.Column<bool>(nullable: false),
                     ProviderId = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(type: "varchar(200)", nullable: false),
                     Decription = table.Column<string>(type: "varchar(1000)", nullable: false),

@@ -38,6 +38,8 @@ namespace Vm.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
+                    b.Property<DateTime?>("LastUpdatedDate");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasColumnType("varchar(10)");
@@ -47,6 +49,8 @@ namespace Vm.Data.Migrations
                     b.Property<string>("PublicPlace")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -71,7 +75,7 @@ namespace Vm.Data.Migrations
 
                     b.Property<bool>("Active");
 
-                    b.Property<string>("Decription")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("varchar(1000)");
 
@@ -79,11 +83,15 @@ namespace Vm.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
+                    b.Property<DateTime?>("LastUpdatedDate");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
                     b.Property<Guid>("ProviderId");
+
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<decimal>("Value");
 
@@ -105,9 +113,13 @@ namespace Vm.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(14)");
 
+                    b.Property<DateTime?>("LastUpdatedDate");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<int>("SupplierType");
 

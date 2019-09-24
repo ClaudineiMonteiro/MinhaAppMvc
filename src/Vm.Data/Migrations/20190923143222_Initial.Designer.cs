@@ -10,8 +10,8 @@ using Vm.Data.Context;
 namespace Vm.Data.Migrations
 {
     [DbContext(typeof(MinhaAppMvcDbContext))]
-    [Migration("20190915215356_Active")]
-    partial class Active
+    [Migration("20190923143222_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,6 +40,8 @@ namespace Vm.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
+                    b.Property<DateTime?>("LastUpdatedDate");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasColumnType("varchar(10)");
@@ -49,6 +51,8 @@ namespace Vm.Data.Migrations
                     b.Property<string>("PublicPlace")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -81,11 +85,15 @@ namespace Vm.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
+                    b.Property<DateTime?>("LastUpdatedDate");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
 
                     b.Property<Guid>("ProviderId");
+
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<decimal>("Value");
 
@@ -107,9 +115,13 @@ namespace Vm.Data.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(14)");
 
+                    b.Property<DateTime?>("LastUpdatedDate");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("RegistrationDate");
 
                     b.Property<int>("SupplierType");
 

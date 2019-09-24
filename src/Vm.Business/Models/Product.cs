@@ -6,7 +6,7 @@ namespace Vm.Business.Models
 	{
 		public Guid ProviderId { get; set; }
 		public string Name { get; set; }
-		public string Decription { get; set; }
+		public string Description { get; set; }
 		public string Image { get; set; }
 		public decimal Value { get; set; }
 

@@ -1,34 +1,47 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Vm.App.Extensions;
 using Vm.App.ViewModels;
 using Vm.Business.Interfaces;
 using Vm.Business.Models;
 
 namespace Vm.App.Controllers
 {
+	[Authorize]
 	public class ProductsController : BaseController
 	{
 		private readonly IProductRepository _productRepository;
 		private readonly IProviderRepository _providerRepository;
+		private readonly IProductService _productService;
 		private readonly IMapper _mapper;
 
-		public ProductsController(IProductRepository productRepository, IProviderRepository providerRepository, IMapper mapper)
+		public ProductsController(IProductRepository productRepository,
+			IProviderRepository providerRepository,
+			IMapper mapper,
+			IProductService productService,
+			INotifier notifier): base(notifier)
 		{
 			_productRepository = productRepository;
 			_providerRepository = providerRepository;
 			_mapper = mapper;
+			_productService = productService;
 		}
 
+		[AllowAnonymous]
+		[Route("lista-de-produtos")]
 		public async Task<IActionResult> Index()
 		{
 			return View(_mapper.Map<IEnumerable<ProductViewModel>>(await _productRepository.GetProductProvider()));
 		}
 
+		[AllowAnonymous]
+		[Route("dados-do-produto/{id:guid}")]
 		public async Task<IActionResult> Details(Guid id)
 		{
 			var productViewModel = await GetProductById(id);
@@ -38,32 +51,39 @@ namespace Vm.App.Controllers
 			return View(productViewModel);
 		}
 
+		[ClaimsAuthorize("Produto", "Adicionar")]
+		[Route("novo-produto")]
 		public async Task<IActionResult> Create()
 		{
 			var productViewModel = await FillProviders(new ProductViewModel());
 			return View(productViewModel);
 		}
 
+		[ClaimsAuthorize("Produto", "Adicionar")]
+		[Route("novo-produto")]
 		[HttpPost]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(ProductViewModel productViewModel)
 		{
 			productViewModel = await FillProviders(productViewModel);
 			if (!ModelState.IsValid) return View(productViewModel);
 
 			var imgPrefix = $"{Guid.NewGuid()}_";
-			if (! await UploadFile(productViewModel.ImageUpload, imgPrefix))
+			if (!await UploadFile(productViewModel.ImageUpload, imgPrefix))
 			{
 				return View(productViewModel);
 			}
 
 			productViewModel.Image = $"{imgPrefix}{productViewModel.ImageUpload.FileName}";
 
-			await _productRepository.Add(_mapper.Map<Product>(productViewModel));
+			await _productService.Add(_mapper.Map<Product>(productViewModel));
 
-			return View(productViewModel);
+			if (!OperacaoValida()) return View(productViewModel);
+
+			return View(nameof(Index));
 		}
 
+		[ClaimsAuthorize("Produto", "Editar")]
+		[Route("editar-produto/{id:guid}")]
 		public async Task<IActionResult> Edit(Guid id)
 		{
 			
@@ -74,8 +94,9 @@ namespace Vm.App.Controllers
 			return View(productViewModel);
 		}
 
+		[ClaimsAuthorize("Produto", "Editar")]
+		[Route("editar-produto/{id:guid}")]
 		[HttpPost]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit(Guid id, ProductViewModel productViewModel)
 		{
 			if (id != productViewModel.Id) return NotFound();
@@ -91,9 +112,8 @@ namespace Vm.App.Controllers
 				if (!await UploadFile(productViewModel.ImageUpload, imgPrefix))
 				{
 					return View(productViewModel);
-
-					productUpdated.Image = $"{imgPrefix}{productViewModel.ImageUpload.FileName}";
-				} 
+				}
+				productUpdated.Image = $"{imgPrefix}{productViewModel.ImageUpload.FileName}";
 			}
 
 			productUpdated.Name = productViewModel.Name;
@@ -101,11 +121,15 @@ namespace Vm.App.Controllers
 			productUpdated.Value = productViewModel.Value;
 			productUpdated.Active = productViewModel.Active;
 
-			await _productRepository.Update(_mapper.Map<Product>(productUpdated));
+			await _productService.Update(_mapper.Map<Product>(productUpdated));
+
+			if (!OperacaoValida()) return View(productViewModel);
 
 			return RedirectToAction(nameof(Index));
 		}
 
+		[ClaimsAuthorize("Produto", "Excluir")]
+		[Route("excluir-produto/{id:guid}")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var product = await (GetProductById(id));
@@ -115,14 +139,19 @@ namespace Vm.App.Controllers
 			return View(product);
 		}
 
+		[ClaimsAuthorize("Produto", "Excluir")]
+		[Route("excluir-produto/{id:guid}")]
 		[HttpPost, ActionName("Delete")]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(Guid id)
 		{
 			var product = GetProductById(id);
 			if (product == null) return NotFound();
 
-			await _productRepository.Remove(id);
+			await _productService.Remove(id);
+
+			if (!OperacaoValida()) return View(product);
+
+			TempData["Sucesso"] = "Produto excluido com sucesso!";
 
 			return RedirectToAction(nameof(Index));
 		}

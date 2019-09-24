@@ -13,6 +13,5 @@ namespace Vm.App.Data
 			: base(options)
 		{
 		}
-		public DbSet<Vm.App.ViewModels.ProductViewModel> ProductViewModel { get; set; }
 	}
 }

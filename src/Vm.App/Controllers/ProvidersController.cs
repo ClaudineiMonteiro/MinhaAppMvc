@@ -1,30 +1,42 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Vm.App.Extensions;
 using Vm.App.ViewModels;
 using Vm.Business.Interfaces;
 using Vm.Business.Models;
 
 namespace Vm.App.Controllers
 {
+	[Authorize]
 	public class ProvidersController : BaseController
 	{
 		private readonly IProviderRepository _providerRepository;
+		private readonly IProviderService _providerService;
 		private readonly IMapper _mapper;
 
-		public ProvidersController(IProviderRepository providerRepository, IMapper mapper)
+		public ProvidersController(IProviderRepository providerRepository,
+			IMapper mapper,
+			IProviderService providerService,
+			INotifier notifier): base(notifier)
 		{
 			_providerRepository = providerRepository;
 			_mapper = mapper;
+			_providerService = providerService;
 		}
 
+		[AllowAnonymous]
+		[Route("lista-de-fornecedores")]
 		public async Task<IActionResult> Index()
 		{
 			return View(_mapper.Map<IEnumerable<ProviderViewModel>>(await _providerRepository.GetAll()));
 		}
 
+		[AllowAnonymous]
+		[Route("dados-do-fornecedor/{id:guid}")]
 		public async Task<IActionResult> Details(Guid id)
 		{
 			var providerViewModel = await GetProviderAddress(id);
@@ -37,23 +49,31 @@ namespace Vm.App.Controllers
 			return View(providerViewModel);
 		}
 
+		[ClaimsAuthorize("Fornecedor", "Adicionar")]
+		[Route("novo-fornecedor")]
 		public IActionResult Create()
 		{
 			return View();
 		}
 
+		[ClaimsAuthorize("Fornecedor", "Adicionar")]
+		[Route("novo-fornecedor")]
 		[HttpPost]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(ProviderViewModel providerViewModel)
 		{
 			if (!ModelState.IsValid) return View(providerViewModel);
 
 			var provider = _mapper.Map<Provider>(providerViewModel);
-			await _providerRepository.Add(provider);
+
+			await _providerService.Add(provider);
+
+			if (!OperacaoValida()) return View(providerViewModel);
 
 			return RedirectToAction(nameof(Index));
 		}
 
+		[ClaimsAuthorize("Fornecedor", "Editar")]
+		[Route("editar-fornecedor/{id:guid}")]
 		public async Task<IActionResult> Edit(Guid id)
 		{
 			var providerViewModel = await GetProviderProductsAddress(id);
@@ -65,8 +85,9 @@ namespace Vm.App.Controllers
 			return View(providerViewModel);
 		}
 
+		[ClaimsAuthorize("Fornecedor", "Editar")]
+		[Route("editar-fornecedor/{id:guid}")]
 		[HttpPost]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit(Guid id, ProviderViewModel providerViewModel)
 		{
 			if (id != providerViewModel.Id) return NotFound();
@@ -74,11 +95,16 @@ namespace Vm.App.Controllers
 			if (!ModelState.IsValid) return View(providerViewModel);
 
 			var provider = _mapper.Map<Provider>(providerViewModel);
-			await _providerRepository.Update(provider);
+
+			await _providerService.Update(provider);
+
+			if (!OperacaoValida()) return View(await GetProviderProductsAddress(id));
 
 			return RedirectToAction(nameof(Index));
 		}
 
+		[ClaimsAuthorize("Fornecedor", "Excluir")]
+		[Route("excluir-fornecedor/{id:guid}")]
 		public async Task<IActionResult> Delete(Guid id)
 		{
 			var providerViewModel = await GetProviderAddress(id);
@@ -88,15 +114,18 @@ namespace Vm.App.Controllers
 			return View(providerViewModel);
 		}
 
+		[ClaimsAuthorize("Fornecedor", "Excluir")]
+		[Route("excluir-fornecedor/{id:guid}")]
 		[HttpPost, ActionName("Delete")]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> DeleteConfirmed(Guid id)
 		{
-			var providerViewModel = await GetProviderAddress(id);
+			var provider = await GetProviderAddress(id);
 
-			if (providerViewModel == null) return NotFound();
+			if (provider == null) return NotFound();
 
-			await _providerRepository.Remove(id);
+			await _providerService.Remove(id);
+
+			if (!OperacaoValida()) return View(provider);
 
 			return RedirectToAction(nameof(Index));
 		}

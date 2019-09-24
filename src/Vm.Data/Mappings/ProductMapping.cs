@@ -14,7 +14,7 @@ namespace Vm.Data.Mappings
 				.IsRequired()
 				.HasColumnType("varchar(200)");
 
-			builder.Property(p => p.Decription)
+			builder.Property(p => p.Description)
 				.IsRequired()
 				.HasColumnType("varchar(1000)");
 
